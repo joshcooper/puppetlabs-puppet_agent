@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org).
 
+## [v4.13.0](https://github.com/puppetlabs/puppetlabs-puppet_agent/tree/v4.13.0) (2022-07-27)
+
+[Full Changelog](https://github.com/puppetlabs/puppetlabs-puppet_agent/compare/v4.12.1...v4.13.0)
+
+### Added
+
+- \(FM-8969\) Add support for macOS 12 ARM [\#615](https://github.com/puppetlabs/puppetlabs-puppet_agent/pull/615) ([joshcooper](https://github.com/joshcooper))
+
 ## [v4.12.1](https://github.com/puppetlabs/puppetlabs-puppet_agent/tree/v4.12.1) (2022-07-13)
 
 [Full Changelog](https://github.com/puppetlabs/puppetlabs-puppet_agent/compare/v4.12.0...v4.12.1)
@@ -17,6 +25,8 @@ All notable changes to this project will be documented in this file. The format 
 ### Added
 
 - \(FM-8943\) Add Ubuntu 22.04 to puppet\_agent module [\#610](https://github.com/puppetlabs/puppetlabs-puppet_agent/pull/610) ([AriaXLi](https://github.com/AriaXLi))
+- \(FM-8943\) Enable to install from nightly repo for Ubuntu 22.04 for task beaker tests [\#609](https://github.com/puppetlabs/puppetlabs-puppet_agent/pull/609) ([AriaXLi](https://github.com/AriaXLi))
+- \(FM-8943\) Enable to install from nightly repo for Ubuntu 22.04 for task beaker tests [\#608](https://github.com/puppetlabs/puppetlabs-puppet_agent/pull/608) ([AriaXLi](https://github.com/AriaXLi))
 - \(maint\) Adds cases for newly-supported OSes [\#607](https://github.com/puppetlabs/puppetlabs-puppet_agent/pull/607) ([mhashizume](https://github.com/mhashizume))
 
 ### Fixed
