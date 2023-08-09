@@ -54,31 +54,32 @@ describe 'install task' do
                          '7.7.0'
                        when %r{osx-12}, %r{ubuntu-22.04}
                          '7.18.0'
+                       when %r{osx-13}
+                         'latest'
                        else
                          '7.18.0'
                        end
 
     # Platforms that only have nightly builds available. Once a platform
     # is released, it should be removed from this list.
-    # case target_platform
-    # when %r{fedora-36}
-    #   puppet_7_collection = 'puppet7-nightly'
-    #   puppet_8_collection = 'puppet8-nightly'
-    # else
-    puppet_7_collection = 'puppet7'
-    puppet_8_collection = 'puppet8'
-    # end
+    case target_platform
+    when %r{osx-13}
+      puppet_7_collection = 'puppet7-nightly'
+      puppet_8_collection = 'puppet8-nightly'
+    else
+      puppet_7_collection = 'puppet7'
+      puppet_8_collection = 'puppet8'
+    end
 
     # We can only test puppet 7 -> 7 upgrades if multiple Puppet releases
     # have supported a given platform. Once a platform has been supported
     # by multiple Puppet releases, it can be removed from this list.
-    # multiple_puppet7_versions = case target_platform
-    #                             when %r{osx-12-arm}
-    #                               false
-    #                             else
-    #                               true
-    #                             end
-    multiple_puppet7_versions = true
+    multiple_puppet7_versions = case target_platform
+                                when %r{osx-13}
+                                  false
+                                else
+                                  true
+                                end
 
     # extra request is needed on windows hosts
     # this will fail with "execution expired"
@@ -87,6 +88,7 @@ describe 'install task' do
     # Test the agent isn't already installed and that the version task works
     results = run_task('puppet_agent::version', 'target', {})
     results.each do |res|
+      pp res
       expect(res).to include('status' => 'success')
       expect(res['value']['version']).to eq(nil)
     end
@@ -106,6 +108,7 @@ describe 'install task' do
     # It installed a version older than latest puppet7
     results = run_task('puppet_agent::version', 'target', {})
     results.each do |res|
+      pp res
       expect(res).to include('status' => 'success')
       if puppet_7_version == 'latest'
         expect(res['value']['version']).to match(%r{^7\.\d+\.\d+})
@@ -193,6 +196,7 @@ describe 'install task' do
     results = run_task('puppet_agent::install', 'target', { 'collection' => puppet_8_collection, 'version' => 'latest' })
 
     results.each do |result|
+      pp result
       logger.info("Upgraded puppet-agent to puppet8 on #{result['target']}: #{result['status']}")
       log_output_errors(result)
     end
