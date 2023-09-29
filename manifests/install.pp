@@ -15,7 +15,7 @@
 #   be escaped and backslashes in single-quoted strings _can_ be escaped.
 class puppet_agent::install (
   String                           $package_version = 'present',
-  Optional[[Stdlib::Absolutepath]] $install_dir     = undef,
+  Optional[Stdlib::Absolutepath]   $install_dir     = undef,
   Array[Variant[String, Hash]]     $install_options = [],
 ) {
   assert_private()
