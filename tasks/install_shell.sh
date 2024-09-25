@@ -32,7 +32,7 @@ critical () {
 
 # Check whether a command exists - returns 0 if it does, 1 if it does not
 exists() {
-  if command -v $1 >/dev/null 2>&1
+  if command -v "$1" >/dev/null 2>&1
   then
     return 0
   else
@@ -183,8 +183,8 @@ fi
 # Utilize facts implementation when available
 if [ -f "$PT__installdir/facts/tasks/bash.sh" ]; then
   # Use facts module bash.sh implementation
-  platform=$(bash $PT__installdir/facts/tasks/bash.sh "platform")
-  platform_version=$(bash $PT__installdir/facts/tasks/bash.sh "release")
+  platform=$(bash "${PT__installdir}/facts/tasks/bash.sh" "platform")
+  platform_version=$(bash "${PT__installdir}/facts/tasks/bash.sh" "release")
 
   # Handle CentOS
   if test "x$platform" = "xCentOS"; then
@@ -239,7 +239,7 @@ if [ -f "$PT__installdir/facts/tasks/bash.sh" ]; then
     # Matching the tab-space with sed is error-prone
     platform_version=$(sw_vers | awk '/^ProductVersion:/ { print $2 }')
 
-    major_version=$(echo $platform_version | cut -d. -f1,2)
+    major_version=$(echo "${platform_version}" | cut -d. -f1,2)
 
     # The major version is the first number only
     major_version=$(echo "${major_version}" | cut -d '.' -f 1);
@@ -266,7 +266,7 @@ fi
 
 # Mangle $platform_version to pull the correct build
 # for various platforms
-major_version=$(echo $platform_version | cut -d. -f1)
+major_version=$(echo "${platform_version}" | cut -d. -f1)
 case $platform in
   "el")
     platform_version=$major_version
@@ -324,31 +324,31 @@ else
 fi
 
 tmp_dir="$tmp/install.sh.$$.$random_number"
-(umask 077 && mkdir $tmp_dir) || exit 1
+(umask 077 && mkdir "${tmp_dir}") || exit 1
 
 tmp_stderr="$tmp/stderr.$$.$random_number"
 
 capture_tmp_stderr() {
   # spool up tmp_stderr from all the commands we called
-  if test -f $tmp_stderr; then
-    output=$(cat ${tmp_stderr})
+  if test -f "${tmp_stderr}"; then
+    output=$(cat "${tmp_stderr}")
     stderr_results="${stderr_results}\nSTDERR from $1:\n\n$output\n"
   fi
 }
 
-trap "rm -f $tmp_stderr; rm -rf $tmp_dir; exit $1" 1 2 15
+trap "rm -f \"${tmp_stderr}\"; rm -rf \"${tmp_dir}\"; exit $1" 1 2 15
 
 # Run command and retry on failure
 # run_cmd CMD
 run_cmd() {
-  eval $1
+  eval "$1"
   rc=$?
 
   if test $rc -ne 0; then
     attempt_number=0
-    while test $attempt_number -lt $retry; do
+    while test $attempt_number -lt "${retry}"; do
       info "Retrying... [$((attempt_number + 1))/$retry]"
-      eval $1
+      eval "$1"
       rc=$?
 
       if test $rc -eq 0; then
@@ -367,11 +367,11 @@ run_cmd() {
 # do_wget URL FILENAME
 do_wget() {
   info "Trying wget..."
-  run_cmd "wget -O '$2' '$1' 2>$tmp_stderr"
+  run_cmd "wget -O '$2' '$1' 2>${tmp_stderr}"
   rc=$?
 
   # check for 404
-  grep "ERROR 404" $tmp_stderr 2>&1 >/dev/null
+  grep "ERROR 404" "${tmp_stderr}" 2>&1 >/dev/null
   if test $? -eq 0; then
     critical "ERROR 404"
     unable_to_retrieve_package
@@ -393,7 +393,7 @@ do_curl() {
   rc=$?
 
   # check for 404
-  grep "404 Not Found" $tmp_stderr 2>&1 >/dev/null
+  grep "404 Not Found" "${tmp_stderr}" 2>&1 >/dev/null
   if test $? -eq 0; then
     critical "ERROR 404"
     unable_to_retrieve_package
@@ -415,7 +415,7 @@ do_fetch() {
   rc=$?
 
   # check for 404
-  grep "404 Not Found" $tmp_stderr 2>&1 >/dev/null
+  grep "404 Not Found" "${tmp_stderr}" 2>&1 >/dev/null
   if test $? -eq 0; then
     critical "ERROR 404"
     unable_to_retrieve_package
@@ -432,11 +432,11 @@ do_fetch() {
 
 do_python3_urllib() {
   info "Trying python3 (urllib.request)..."
-  run_cmd "python3 -c 'import urllib.request ; urllib.request.urlretrieve(\"$1\", \"$2\")'" 2>$tmp_stderr
+  run_cmd "python3 -c 'import urllib.request ; urllib.request.urlretrieve(\"$1\", \"$2\")'" 2>"${tmp_stderr}"
   rc=$?
 
   # check for 404
-  if grep "404: Not Found" $tmp_stderr 2>&1 >/dev/null ; then
+  if grep "404: Not Found" "${tmp_stderr}" 2>&1 >/dev/null ; then
     critical "ERROR 404"
     unable_to_retrieve_package
   fi
@@ -452,11 +452,11 @@ do_python3_urllib() {
 # do_perl_lwp URL FILENAME
 do_perl_lwp() {
   info "Trying perl (LWP::Simple)..."
-  run_cmd "perl -e 'use LWP::Simple; getprint(\$ARGV[0]);' '$1' > '$2' 2>$tmp_stderr"
+  run_cmd "perl -e 'use LWP::Simple; getprint(\$ARGV[0]);' '$1' > '$2' 2>${tmp_stderr}"
   rc=$?
 
   # check for 404
-  grep "404 Not Found" $tmp_stderr 2>&1 >/dev/null
+  grep "404 Not Found" "${tmp_stderr}" 2>&1 >/dev/null
   if test $? -eq 0; then
     critical "ERROR 404"
     unable_to_retrieve_package
@@ -477,7 +477,7 @@ do_perl_ff() {
   rc=$?
 
   # check for 404
-  grep "HTTP response: 404" $tmp_stderr 2>&1 >/dev/null
+  grep "HTTP response: 404" "${tmp_stderr}" 2>&1 >/dev/null
   if test $? -eq 0 ; then
     critical "ERROR 404"
     unable_to_retrieve_package
@@ -500,27 +500,27 @@ do_download() {
   # perl, in particular may be present but LWP::Simple may not be installed
 
   if exists wget; then
-    do_wget $1 $2 && return 0
+    do_wget "$1" "$2" && return 0
   fi
 
   if exists curl; then
-    do_curl $1 $2 && return 0
+    do_curl "$1" "$2" && return 0
   fi
 
   if exists fetch; then
-    do_fetch $1 $2 && return 0
+    do_fetch "$1" "$2" && return 0
   fi
 
   if exists_perl_lwp; then
-    do_perl_lwp $1 $2 && return 0
+    do_perl_lwp "$1" "$2" && return 0
   fi
 
   if exists_perl_ff; then
-    do_perl_ff $1 $2 && return 0
+    do_perl_ff "$1" "$2" && return 0
   fi
 
   if exists_python3_urllib; then
-    do_python3_urllib $1 $2 && return 0
+    do_python3_urllib "$1" "$2" && return 0
   fi
 
   critical "Cannot download package as none of wget/curl/fetch/perl-LWP-Simple/perl-File-Fetch/python3 is found"
@@ -540,10 +540,10 @@ install_file() {
 
       if test "x$installed_version" != "xuninstalled"; then
         info "Version ${installed_version} detected..."
-        major=$(echo $installed_version | cut -d. -f1)
+        major=$(echo "${installed_version}" | cut -d. -f1)
         pkg="puppet${major}-release"
 
-        if echo $2 | grep $pkg; then
+        if echo "$2" | grep "${pkg}"; then
           info "No collection upgrade detected"
         else
           info "Collection upgrade detected, replacing puppet${major}-release"
@@ -564,10 +564,10 @@ install_file() {
 
       if test "x$installed_version" != "xuninstalled"; then
         info "Version ${installed_version} detected..."
-        major=$(echo $installed_version | cut -d. -f1)
+        major=$(echo "${installed_version}" | cut -d. -f1)
         pkg="puppet${major}-release"
 
-        if echo $2 | grep $pkg; then
+        if echo "$2" | grep "${pkg}"; then
           info "No collection upgrade detected"
         else
           info "Collection upgrade detected, replacing puppet${major}-release"
@@ -587,10 +587,10 @@ install_file() {
 
       if test "x$installed_version" != "xuninstalled"; then
         info "Version ${installed_version} detected..."
-        major=$(echo $installed_version | cut -d. -f1)
+        major=$(echo "${installed_version}" | cut -d. -f1)
         pkg="puppet${major}-release"
 
-        if echo $2 | grep $pkg; then
+        if echo "$2" | grep "${pkg}"; then
           info "No collection upgrade detected"
         else
           info "Collection upgrade detected, replacing puppet${major}-release"
@@ -617,9 +617,9 @@ install_file() {
       info "installing puppetlabs dmg with hdiutil and installer"
       mountpoint="$(mktemp -d -t $(random_hexdump))"
       /usr/bin/hdiutil attach "${download_filename?}" -nobrowse -readonly -mountpoint "${mountpoint?}"
-      /usr/sbin/installer -pkg ${mountpoint?}/puppet-agent-*-installer.pkg -target /
+      /usr/sbin/installer -pkg "${mountpoint?}"/puppet-agent-*-installer.pkg -target /
       /usr/bin/hdiutil detach "${mountpoint?}"
-      rm -f $download_filename
+      rm -f "${download_filename}"
       ;;
     *)
       critical "Unknown filetype: $1"
