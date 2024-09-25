@@ -13,7 +13,7 @@ now () {
 
 # Logging functions instead of echo
 log () {
-    echo "`now` ${1}"
+    echo "$(now) ${1}"
 }
 
 info () {
@@ -146,9 +146,9 @@ fi
 
 # Track to handle puppet5 to puppet6
 if [ -f /opt/puppetlabs/puppet/VERSION ]; then
-  installed_version=`cat /opt/puppetlabs/puppet/VERSION`
+  installed_version=$(cat /opt/puppetlabs/puppet/VERSION)
 elif type -p puppet >/dev/null; then
-  installed_version=`puppet --version`
+  installed_version=$(puppet --version)
 else
   installed_version=uninstalled
 fi
@@ -174,7 +174,7 @@ else
 fi
 
 # Error if non-root
-if [ `id -u` -ne 0 ]; then
+if [ $(id -u) -ne 0 ]; then
   echo "puppet_agent::install task must be run as root"
   exit 1
 fi
@@ -223,23 +223,23 @@ if [ -f "$PT__installdir/facts/tasks/bash.sh" ]; then
     if test -f "/etc/SuSE-release"; then
       if grep -q 'Enterprise' /etc/SuSE-release; then
         platform="SLES"
-        platform_version=`awk '/^VERSION/ {V = $3}; /^PATCHLEVEL/ {P = $3}; END {print V "." P}' /etc/SuSE-release`
+        platform_version=$(awk '/^VERSION/ {V = $3}; /^PATCHLEVEL/ {P = $3}; END {print V "." P}' /etc/SuSE-release)
       else
         echo "No builds for platform: SUSE"
         exit 1
       fi
     elif test -f "/etc/redhat-release"; then
       platform="el"
-      platform_version=`sed 's/^.\+ release \([.0-9]\+\).*/\1/' /etc/redhat-release`
+      platform_version=$(sed 's/^.\+ release \([.0-9]\+\).*/\1/' /etc/redhat-release)
     fi
 
   # Handle macOS
   elif test "x$platform" = "xDarwin"; then
     platform="mac_os_x"
     # Matching the tab-space with sed is error-prone
-    platform_version=`sw_vers | awk '/^ProductVersion:/ { print $2 }'`
+    platform_version=$(sw_vers | awk '/^ProductVersion:/ { print $2 }')
 
-    major_version=`echo $platform_version | cut -d. -f1,2`
+    major_version=$(echo $platform_version | cut -d. -f1,2)
 
     # The major version is the first number only
     major_version=$(echo "${major_version}" | cut -d '.' -f 1);
@@ -266,7 +266,7 @@ fi
 
 # Mangle $platform_version to pull the correct build
 # for various platforms
-major_version=`echo $platform_version | cut -d. -f1`
+major_version=$(echo $platform_version | cut -d. -f1)
 case $platform in
   "el")
     platform_version=$major_version
@@ -320,7 +320,7 @@ fi
 if exists hexdump; then
   random_number=$(random_hexdump)
 else
-  random_number="`date +%N`"
+  random_number="$(date +%N)"
 fi
 
 tmp_dir="$tmp/install.sh.$$.$random_number"
@@ -331,7 +331,7 @@ tmp_stderr="$tmp/stderr.$$.$random_number"
 capture_tmp_stderr() {
   # spool up tmp_stderr from all the commands we called
   if test -f $tmp_stderr; then
-    output=`cat ${tmp_stderr}`
+    output=$(cat ${tmp_stderr})
     stderr_results="${stderr_results}\nSTDERR from $1:\n\n$output\n"
   fi
 }
