@@ -174,7 +174,7 @@ else
 fi
 
 # Error if non-root
-if [ $(id -u) -ne 0 ]; then
+if [ "$(id -u)" -ne 0 ]; then
   echo "puppet_agent::install task must be run as root"
   exit 1
 fi
@@ -615,7 +615,7 @@ install_file() {
       ;;
     "dmg" )
       info "installing puppetlabs dmg with hdiutil and installer"
-      mountpoint="$(mktemp -d -t $(random_hexdump))"
+      mountpoint="$(mktemp -d -t "$(random_hexdump)")"
       /usr/bin/hdiutil attach "${download_filename?}" -nobrowse -readonly -mountpoint "${mountpoint?}"
       /usr/sbin/installer -pkg "${mountpoint?}"/puppet-agent-*-installer.pkg -target /
       /usr/bin/hdiutil detach "${mountpoint?}"
