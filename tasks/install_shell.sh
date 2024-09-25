@@ -371,7 +371,7 @@ do_wget() {
   rc=$?
 
   # check for 404
-  grep "ERROR 404" "${tmp_stderr}" 2>&1 >/dev/null
+  grep "ERROR 404" "${tmp_stderr}" >/dev/null 2>&1
   if test $? -eq 0; then
     critical "ERROR 404"
     unable_to_retrieve_package
@@ -393,7 +393,7 @@ do_curl() {
   rc=$?
 
   # check for 404
-  grep "404 Not Found" "${tmp_stderr}" 2>&1 >/dev/null
+  grep "404 Not Found" "${tmp_stderr}" >/dev/null 2>&1
   if test $? -eq 0; then
     critical "ERROR 404"
     unable_to_retrieve_package
@@ -415,7 +415,7 @@ do_fetch() {
   rc=$?
 
   # check for 404
-  grep "404 Not Found" "${tmp_stderr}" 2>&1 >/dev/null
+  grep "404 Not Found" "${tmp_stderr}" >/dev/null 2>&1
   if test $? -eq 0; then
     critical "ERROR 404"
     unable_to_retrieve_package
@@ -436,7 +436,7 @@ do_python3_urllib() {
   rc=$?
 
   # check for 404
-  if grep "404: Not Found" "${tmp_stderr}" 2>&1 >/dev/null ; then
+  if grep "404: Not Found" "${tmp_stderr}" >/dev/null 2>&1 ; then
     critical "ERROR 404"
     unable_to_retrieve_package
   fi
@@ -456,7 +456,7 @@ do_perl_lwp() {
   rc=$?
 
   # check for 404
-  grep "404 Not Found" "${tmp_stderr}" 2>&1 >/dev/null
+  grep "404 Not Found" "${tmp_stderr}" >/dev/null 2>&1
   if test $? -eq 0; then
     critical "ERROR 404"
     unable_to_retrieve_package
@@ -477,7 +477,7 @@ do_perl_ff() {
   rc=$?
 
   # check for 404
-  grep "HTTP response: 404" "${tmp_stderr}" 2>&1 >/dev/null
+  grep "HTTP response: 404" "${tmp_stderr}" >/dev/null 2>&1
   if test $? -eq 0 ; then
     critical "ERROR 404"
     unable_to_retrieve_package
