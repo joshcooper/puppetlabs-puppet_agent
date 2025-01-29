@@ -175,6 +175,8 @@ fi
         sslclientcert       => $_sslclientcert_path,
         sslclientkey        => $_sslclientkey_path,
         skip_if_unavailable => $puppet_agent::skip_if_unavailable,
+        username            => $puppet_agent::username,
+        password            => $puppet_agent::password,
       }
     }
   }

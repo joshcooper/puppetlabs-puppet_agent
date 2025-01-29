@@ -151,7 +151,7 @@ SCRIPT
                   'enabled'     => '1',
                   'gpgcheck'    => '1',
                   'autorefresh' => '0',
-                  'baseurl'     => "http://yum.puppet.com/puppet6/sles/#{os_version}/x86_64?ssl_verify=no",
+                  'baseurl'     => "https://yum-puppetcore.puppet.com/puppet6/sles/#{os_version}/x86_64?ssl_verify=no",
                   'type'        => 'rpm-md',
                 }.each do |setting, value|
                   it {
