@@ -42,6 +42,13 @@ do
             base_image='rockylinux/rockylinux:8'
             ;;
 
+        sles)
+            docker build --rm -f docker/sles/Dockerfile . -t pa-dev:$platform.install \
+                   --build-arg version=${version}
+            docker run -e PUPPET_FORGE_TOKEN --rm -ti pa-dev:$platform.install
+            exit 0
+            ;;
+
         *)
             echo "$0: Usage install.sh [amazon|fedora|rocky]"
             exit 1

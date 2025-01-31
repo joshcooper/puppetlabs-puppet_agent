@@ -10,6 +10,7 @@
 #             - `amazon`
 #             - `fedora`
 #             - `rocky`
+#             - `sles`
 #             - `ubuntu`
 #             Default: `ubuntu`
 # - BEFORE: The puppet-agent package version that is installed prior to upgrade.
@@ -43,6 +44,13 @@ do
         rocky)
             base_image='rockylinux/rockylinux:8'
             release_package='http://yum.puppet.com/puppet7-release-el-8.noarch.rpm'
+            ;;
+
+        sles)
+            docker build --rm -f docker/sles/Dockerfile . -t pa-dev:$platform \
+                   --build-arg before=${before}
+            docker run -e PUPPET_FORGE_TOKEN --rm -ti pa-dev:$platform 8.10.0
+            exit 0
             ;;
 
         *)
