@@ -31,7 +31,7 @@ FROM rockylinux/rockylinux:8
 
 # Install some other dependencies for ease of life.
 RUN  dnf update -y \
-  && dnf install -y wget git \
+  && dnf install -y git \
   && dnf clean all
 
 ARG before=7.34.0
@@ -40,8 +40,7 @@ LABEL before=${before}
 # Install proper FROM repo pupet 7
 RUN if [[ ${before} == 7.* ]]; then \
         echo Installing puppet7 repo; \
-        wget -O puppet7.rpm http://yum.puppet.com/puppet7-release-el-8.noarch.rpm && \
-        rpm -i puppet7.rpm; \
+        rpm -Uvh http://yum.puppet.com/puppet7-release-el-8.noarch.rpm; \
     else echo no; \
     fi
 
@@ -50,7 +49,8 @@ RUN if [[ ${before} == 7.* ]]; then \
 
 # Install FROM version of puppet-agent.
 RUN dnf -y update && \
-    dnf install -y puppet-agent-${before}-1.el8
+    dnf install -y puppet-agent-${before} && \
+    dnf clean all
 
 # This is also duplicated in the docker/bin/helpers/run-upgrade.sh.
 ENV module_path=/tmp/modules

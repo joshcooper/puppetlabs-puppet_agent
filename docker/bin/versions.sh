@@ -11,7 +11,12 @@
 #             Default: `ubuntu`
 set -e
 
-platform=${1:-ubuntu}
+if [ -z "${PUPPET_FORGE_TOKEN}" ]; then
+    echo "Environment variable PUPPET_FORGE_TOKEN must be set"
+    exit 1
+fi
+
+platform=${1:-rocky}
 
 case "${platform}" in
     ubuntu|rocky)
@@ -21,5 +26,5 @@ case "${platform}" in
         ;;
 esac
 cd "$(dirname "$0")/../.."
-docker build -f docker/${platform}/Dockerfile.versions . -t pa-dev:${platform}-versions
-docker run -it --rm pa-dev:${platform}-versions
+docker build --rm -f docker/${platform}/Dockerfile.versions . -t pa-dev:${platform}-versions
+docker run -e PUPPET_FORGE_TOKEN --rm -it pa-dev:${platform}-versions

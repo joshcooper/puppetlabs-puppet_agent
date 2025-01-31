@@ -20,7 +20,12 @@ case $puppet_major in
     echo "Invalid version supplied" 1>&2
     exit 1
 esac
-FACTER_to_version=${1:-8.10.0} FACTER_to_collection=${to_collection} /opt/puppetlabs/puppet/bin/puppet apply --debug --trace --modulepath /tmp/modules /tmp/upgrade.pp
+FACTER_to_version=${1:-8.10.0} \
+                 FACTER_to_collection=${to_collection} \
+                 FACTER_forge_username=forge-key \
+                 FACTER_forge_password="${PUPPET_FORGE_TOKEN}" \
+                 /opt/puppetlabs/puppet/bin/puppet apply --debug --trace --modulepath /tmp/modules /tmp/upgrade.pp
+
 # Make e.g. `puppet --version` work out of the box.
 PATH=/opt/puppetlabs/bin:$PATH \
     read -p "Explore the upgraded container? [y/N]: " choice && \

@@ -5,12 +5,9 @@ RUN  dnf update -y \
   && dnf install -y wget git \
   && dnf clean all
 
-# Install several repos: puppet 7 and 8
-RUN wget -O puppet7.rpm http://yum.puppet.com/puppet7-release-el-8.noarch.rpm && \
-    rpm -i puppet7.rpm --force --replacefiles --nodeps && \
-    wget -O puppet8.rpm http://yum.puppet.com/puppet8-release-el-8.noarch.rpm && \
-    rpm -i puppet8.rpm --force --replacefiles --nodeps
+# Now move the project directory's files into the image. That way, if these
+# files change, caching will skip everything before this.
+COPY docker/bin/helpers/run-versions.sh /tmp/bin/run-versions.sh
 
-# Print out available package versions for puppet-agent. If a specific version
-# is desired, pass that in with e.g. `--build-arg before=1.1.1`
-ENTRYPOINT ["dnf", "list", "puppet-agent", "--showduplicates"]
+# Print out available package versions for puppet-agent.
+ENTRYPOINT ["/tmp/bin/run-versions.sh"]
