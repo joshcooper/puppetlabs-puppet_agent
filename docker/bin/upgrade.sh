@@ -8,6 +8,7 @@
 # - PLATFORM: The platform on which the upgrade should occur. This also
 #             supports comma-separated lists. Available:
 #             - `ubuntu`
+#             - `fedora`
 #             - `rocky`
 #             Default: `ubuntu`
 # - BEFORE: The puppet-agent package version that is installed prior to upgrade.
