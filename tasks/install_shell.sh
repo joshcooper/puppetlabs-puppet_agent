@@ -100,6 +100,16 @@ if [ -n "$PT_version" ]; then
   version=$PT_version
 fi
 
+if [ -n "$PT_username" ]; then
+    username=$PT_username
+else
+    username="forge-key"
+fi
+
+if [ -n "$PT_password" ]; then
+    password=$PT_password
+fi
+
 if [ -n "$PT_collection" ]; then
   # Check whether collection is nightly
   if [[ "$PT_collection" == *"nightly"* ]]; then
@@ -110,7 +120,7 @@ if [ -n "$PT_collection" ]; then
 
   collection=$PT_collection
 else
-  collection='puppet'
+  collection='puppet8'
 fi
 
 if [ -n "$PT_yum_source" ]; then
@@ -119,7 +129,11 @@ else
   if [ "$nightly" = true ]; then
     yum_source='https://artifactory.delivery.puppetlabs.net:443/artifactory/internal_nightly__local/yum'
   else
-    yum_source='http://yum.puppet.com'
+    yum_source='https://yum-puppetcore.puppet.com/public'
+    if [ -z "$password" ]; then
+      echo "A password parameter is required to install from ${yum_source}"
+      exit 1
+    fi
   fi
 fi
 
@@ -583,6 +597,8 @@ install_file() {
       fi
 
       rpm -Uvh --oldpackage --replacepkgs "$2"
+      sed -i "s/^#\?username=.*/username=${username}/" "/etc/yum.repos.d/puppet8-release.repo"
+      sed -i "s/^#\?password=.*/password=${password}/" "/etc/yum.repos.d/puppet8-release.repo"
       exists dnf && PKGCMD=dnf || PKGCMD=yum
       if test "$version" = 'latest'; then
         run_cmd "${PKGCMD} install -y puppet-agent && ${PKGCMD} upgrade -y puppet-agent"
@@ -606,7 +622,7 @@ install_file() {
         fi
       fi
 
-      run_cmd "zypper install --no-confirm '$2'"
+      sed -i 's/^baseurl/baseurl=https:\/\/${username}:${password}@yum-puppetcore.puppet.com\/puppet8\/sles\/\$basearch?auth=basic' "/etc/zypp/repos.d/puppet8-release.repo"
       if test "$version" = "latest"; then
         run_cmd "zypper install --no-confirm 'puppet-agent'"
       else
@@ -669,9 +685,9 @@ case $platform in
     info "SLES platform! Lets get you an RPM..."
 
     if [[ $PT__noop != true ]]; then
-      for key in "puppet" "puppet-20250406"; do
+      for key in "puppet-20250406"; do
         gpg_key="${tmp_dir}/RPM-GPG-KEY-${key}"
-        do_download "https://yum.puppet.com/RPM-GPG-KEY-${key}" "$gpg_key"
+        do_download "https://yum-puppetcore.puppet.com/public/RPM-GPG-KEY-${key}" "$gpg_key"
         rpm --import "$gpg_key"
         rm -f "$gpg_key"
       done
