@@ -7,9 +7,10 @@
 # Parameters:
 # - PLATFORM: The platform on which the upgrade should occur. This also
 #             supports comma-separated lists. Available:
-#             - `ubuntu`
+#             - `amazon`
 #             - `fedora`
 #             - `rocky`
+#             - `ubuntu`
 #             Default: `ubuntu`
 # - BEFORE: The puppet-agent package version that is installed prior to upgrade.
 #           Default: 7.34.0
