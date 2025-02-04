@@ -24,7 +24,8 @@
 # Arguments:
 # - before: The version to do upgrade FROM. Default: "7.34.0"
 
-FROM rockylinux/rockylinux:8
+ARG BASE_IMAGE=rocky:8
+FROM ${BASE_IMAGE}
 
 # Use this to force a cache reset (e.g. for output purposes)
 #COPY $0 /tmp/Dockerfile
@@ -37,10 +38,12 @@ RUN  dnf update -y \
 ARG before=7.34.0
 LABEL before=${before}
 
+ARG RELEASE_PACKAGE
+
 # Install proper FROM repo pupet 7
 RUN if [[ ${before} == 7.* ]]; then \
         echo Installing puppet7 repo; \
-        rpm -Uvh http://yum.puppet.com/puppet7-release-el-8.noarch.rpm; \
+        rpm -Uvh ${RELEASE_PACKAGE}; \
     else echo no; \
     fi
 

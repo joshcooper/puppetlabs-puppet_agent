@@ -29,8 +29,33 @@ before=${2:-7.34.0}
 after=${3:-8.10.0}
 for platform in ${platforms//,/ }
 do
-    docker build --rm -f docker/$platform/Dockerfile . -t pa-dev:$platform \
-        --build-arg before=${before}
+    case $platform in
+        amazon)
+            base_image='amazonlinux:2023'
+            release_package='http://yum.puppet.com/puppet7-release-amazon-2023.noarch.rpm'
+            ;;
+
+        fedora)
+            base_image='fedora:40'
+            release_package='http://yum.puppet.com/puppet7-release-fedora-40.noarch.rpm'
+            ;;
+
+        rocky)
+            base_image='rockylinux/rockylinux:8'
+            release_package='http://yum.puppet.com/puppet7-release-el-8.noarch.rpm'
+            ;;
+
+        *)
+            echo "$0: Usage upgrade.sh [amazon|fedora|rocky]"
+            exit 1
+            ;;
+    esac
+
+    docker build --rm -f docker/upgrade/dnf/Dockerfile . -t pa-dev:$platform \
+           --build-arg before=${before} \
+           --build-arg BASE_IMAGE=${base_image} \
+           --build-arg RELEASE_PACKAGE=${release_package}
+
     docker run -e PUPPET_FORGE_TOKEN --rm -ti pa-dev:$platform ${after}
 done
 echo Complete
