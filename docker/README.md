@@ -2,11 +2,40 @@
 
 These directories contain Dockerfiles that are useful for testing installation and upgrades.
 
+All examples assume the `PUPPET_FORGE_TOKEN` environment variable is set.
+
 ## Usage
 
 ### Installation
 
-TBD
+This case uses the `install_shell.sh` task to install puppet-agent 8.x and verifies
+you can run `puppet apply`
+
+#### Usage
+
+#### Perform default install
+
+```
+$ docker/bin/install.sh
+...
+  Installing       : puppet-agent-8.10.0-1.el8.x86_64
+...
+Notice: Scope(Class[main]): puppet apply
+Notice: Compiled catalog for 201fbd3e5e0b in environment production in 0.02 seconds
+Notice: Applied catalog in 0.02 seconds
+```
+
+#### Install a specific platform
+
+```
+$ docker/bin/install.sh fedora
+...
+  Installing       : puppet-agent-8.10.0-1.fc40.x86_64
+...
+Notice: Scope(Class[main]): puppet apply
+Notice: Compiled catalog for 881280c14d12 in environment production in 0.02 seconds
+Notice: Applied catalog in 0.02 seconds
+```
 
 ### Upgrades
 
@@ -14,8 +43,6 @@ This case installs a "before" version of puppet-agent 7.x and verifies you can
 use this module to upgrade to an "after" version of puppet-agent 8.x.
 
 #### Usage
-
-All examples assume the `PUPPET_FORGE_TOKEN` environment variable is set.
 
 ##### Perform default upgrade
 
