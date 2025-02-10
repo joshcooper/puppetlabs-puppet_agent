@@ -597,8 +597,8 @@ install_file() {
       fi
 
       rpm -Uvh --oldpackage --replacepkgs "$2"
-      sed -i "s/^#\?username=.*/username=${username}/" "/etc/yum.repos.d/puppet8-release.repo"
-      sed -i "s/^#\?password=.*/password=${password}/" "/etc/yum.repos.d/puppet8-release.repo"
+      sed -i "s/^#\?username=.*/username=${username}/" "/etc/yum.repos.d/${collection}-release.repo"
+      sed -i "s/^#\?password=.*/password=${password}/" "/etc/yum.repos.d/${collection}-release.repo"
       exists dnf && PKGCMD=dnf || PKGCMD=yum
       if test "$version" = 'latest'; then
         run_cmd "${PKGCMD} install -y puppet-agent && ${PKGCMD} upgrade -y puppet-agent"
@@ -622,7 +622,8 @@ install_file() {
         fi
       fi
 
-      sed -i 's/^baseurl/baseurl=https:\/\/${username}:${password}@yum-puppetcore.puppet.com\/puppet8\/sles\/\$basearch?auth=basic' "/etc/zypp/repos.d/puppet8-release.repo"
+      run_cmd "zypper install --no-confirm '$2'"
+      sed -i -E "s/^baseurl=https:\/\/.*yum-puppetcore.puppet.com(.*)/baseurl=https:\/\/${username}:${password}@yum-puppetcore.puppet.com\\1/" "/etc/zypp/repos.d/${collection}-release.repo"
       if test "$version" = "latest"; then
         run_cmd "zypper install --no-confirm 'puppet-agent'"
       else

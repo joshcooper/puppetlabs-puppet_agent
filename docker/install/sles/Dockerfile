@@ -8,23 +8,17 @@
 #   4. Review the output. Repeat steps 2-3 as needed.
 #
 # At the end of execution, you will see a line like:
-# Dependencies resolved.
-# ========================================================================================================================================
-#  Package                          Architecture               Version                                  Repository                   Size
-# ========================================================================================================================================
-# Installing:
-#  puppet-agent                     x86_64                     8.10.0-1.el8                             puppet8                      27 M
+#
+# (19/19) Installing: puppet-agent-8.11.0-1.sles15.x86_64 ..........................................................................[done]
 
-ARG BASE_IMAGE=rocky:8
+ARG BASE_IMAGE=registry.suse.com/suse/sle15:15.6
 FROM ${BASE_IMAGE}
 
 # Use this to force a cache reset (e.g. for output purposes)
 #COPY $0 /tmp/Dockerfile
 
 # Install some other dependencies for ease of life.
-RUN  dnf update -y \
-  && dnf install -y git \
-  && dnf clean all
+RUN zypper install --no-confirm wget git-core
 
 # This is also duplicated in the docker/bin/helpers/run-upgrade.sh.
 ENV module_path=/tmp/modules

@@ -19,45 +19,56 @@
 #          Default: 8.1.0
 set -e
 
-if [ -z "${PUPPET_FORGE_TOKEN}" ]; then
-    echo "Environment variable PUPPET_FORGE_TOKEN must be set"
+if [[ -z "${PUPPET_FORGE_TOKEN}" ]]; then
+    echo "$0: Environment variable PUPPET_FORGE_TOKEN must be set"
     exit 1
 fi
 
 cd "$(dirname "$0")/../.."
 platforms=${1:-rocky}
-version=${2:-8.10.0}
+version=${2:-8.11.0}
 for platform in ${platforms//,/ }
 do
+    dockerfile='docker/install/dnf/Dockerfile'
+
     case $platform in
-        amazon)
+        amazon*)
             base_image='amazonlinux:2023'
             ;;
 
-        fedora)
+        fedora40)
             base_image='fedora:40'
             ;;
 
-        rocky)
+        fedora36)
+            base_image='fedora:36'
+            ;;
+
+        fedora*)
+            base_image='fedora:41'
+            ;;
+
+        rocky8)
             base_image='rockylinux/rockylinux:8'
             ;;
 
-        sles)
-            docker build --rm -f docker/sles/Dockerfile . -t pa-dev:$platform.install \
-                   --build-arg version=${version}
-            docker run -e PUPPET_FORGE_TOKEN --rm -ti pa-dev:$platform.install
-            exit 0
+        rocky*)
+            base_image='rockylinux/rockylinux:9'
+            ;;
+
+        sles*)
+            base_image='registry.suse.com/suse/sle15:15.6'
+            dockerfile='docker/install/sles/Dockerfile'
             ;;
 
         *)
-            echo "$0: Usage install.sh [amazon|fedora|rocky]"
+            echo "$0: Usage install.sh [amazon|fedora|rocky|sles]"
             exit 1
             ;;
     esac
 
-    docker build --rm -f docker/install/dnf/Dockerfile . -t pa-dev:$platform.install \
-           --build-arg version=${version} \
-           --build-arg BASE_IMAGE=${base_image}
-    docker run -e PUPPET_FORGE_TOKEN --rm -ti pa-dev:$platform.install
+    docker build --rm -f "${dockerfile}" . -t pa-dev:$platform.install \
+           --build-arg BASE_IMAGE="${base_image}"
+    docker run -e PUPPET_FORGE_TOKEN --rm -ti pa-dev:$platform.install "${version}"
 done
 echo Complete
