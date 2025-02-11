@@ -153,7 +153,7 @@ else
   if [ "$nightly" = true ]; then
     mac_source='https://artifactory.delivery.puppetlabs.net:443/artifactory/internal_nightly__local/downloads'
   else
-    mac_source='http://downloads.puppet.com'
+    mac_source="https://${username}:${password}@artifacts-puppetcore.puppet.com/v1/download"
   fi
 fi
 
@@ -534,7 +534,8 @@ do_perl_ff() {
 
 # do_download URL FILENAME
 do_download() {
-  info "Downloading $1"
+  url=$(echo "$1" | sed -E 's#(://[^:]+:)[^@]+(@)#\1*****\2#')
+  info "Downloading $url"
   info "  to file $2"
 
   # we try all of these until we get success.
@@ -772,6 +773,7 @@ case $platform in
     info "Mac platform! Lets get you a DMG..."
     filetype="dmg"
     if test "$version" = "latest"; then
+      # REMIND: don't know how to get latest
       filename="puppet-agent-latest.dmg"
     else
       filename="puppet-agent-${version}-1.osx${platform_version}.dmg"
@@ -781,7 +783,7 @@ case $platform in
     if [[ $(uname -p) == "arm" ]]; then
         arch="arm64"
     fi
-    download_url="${mac_source}/mac/${collection}/${platform_version}/${arch}/${filename}"
+    download_url="${mac_source}?version=${version}&os_name=osx&os_version=${platform_version}&os_arch=${arch}"
     ;;
   *)
     critical "Sorry $platform is not supported yet!"
