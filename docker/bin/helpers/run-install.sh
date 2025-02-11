@@ -35,6 +35,11 @@ puppet apply -e 'notice("puppet apply")'
 
 os_name=$(facter os.name)
 case $os_name in
+    Debian|Ubuntu)
+        echo "Installing server"
+        puppet apply -e 'package { ["puppetserver", "puppetdb", "puppetdb-termini"]: ensure => installed }'
+        dpkg -l | grep puppet
+        ;;
     Rocky|SLES)
         echo "Installing server"
         puppet apply -e 'package { ["puppetserver", "puppetdb", "puppetdb-termini"]: ensure => installed }'

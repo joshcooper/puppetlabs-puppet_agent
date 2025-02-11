@@ -143,7 +143,7 @@ else
   if [ "$nightly" = true ]; then
     apt_source='http://nightlies.puppet.com/apt'
   else
-    apt_source='http://apt.puppet.com'
+    apt_source='https://apt-puppetcore.puppet.com/public'
   fi
 fi
 
@@ -649,15 +649,17 @@ install_file() {
       assert_unmodified_apt_config
 
       dpkg -i --force-confmiss "$2"
+      sed -i "s/^#login.*/login ${username}/" /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf
+      sed -i "s/^#password.*/password ${password}/" /etc/apt/auth.conf.d/apt-puppetcore-puppet.conf
+      frontend="DEBIAN_FRONTEND=noninteractive"
       run_cmd 'apt-get update -y'
-
       if test "$version" = 'latest'; then
-        run_cmd "apt-get install -y puppet-agent"
+        run_cmd "${frontend} apt-get install -y puppet-agent"
       else
         if test "x$deb_codename" != "x"; then
-          run_cmd "apt-get install -y 'puppet-agent=${puppet_agent_version}-1${deb_codename}'"
+          run_cmd "${frontend} apt-get install -y 'puppet-agent=${puppet_agent_version}-1${deb_codename}'"
         else
-          run_cmd "apt-get install -y 'puppet-agent=${puppet_agent_version}'"
+          run_cmd "${frontend} apt-get install -y 'puppet-agent=${puppet_agent_version}'"
         fi
       fi
       ;;
