@@ -28,13 +28,25 @@ export PT_password=${PUPPET_FORGE_TOKEN}
 chmod u+x tasks/install_shell.sh
 tasks/install_shell.sh
 
-echo "puppet $(/opt/puppetlabs/puppet/bin/puppet --version)"
-echo "facter $(/opt/puppetlabs/puppet/bin/facter --version)"
-/opt/puppetlabs/puppet/bin/puppet apply -e 'notice("puppet apply")'
+export PATH=/opt/puppetlabs/bin:$PATH
+echo "puppet $(puppet --version)"
+echo "facter $(facter --version)"
+puppet apply -e 'notice("puppet apply")'
+
+os_name=$(facter os.name)
+case $os_name in
+    Rocky|SLES)
+        echo "Installing server"
+        puppet apply -e 'package { ["puppetserver", "puppetdb", "puppetdb-termini"]: ensure => installed }'
+        dnf list | grep puppet
+        ;;
+    *)
+        echo "Server not supported, skipping"
+        ;;
+esac
 
 # Make e.g. `puppet --version` work out of the box.
-PATH=/opt/puppetlabs/bin:$PATH \
-    read -p "Explore the container? [y/N]: " choice && \
+read -p "Explore the container? [y/N]: " choice && \
     choice=${choice:-N} && \
     if [ "${choice}" = "y" ]; then \
         bash; \
